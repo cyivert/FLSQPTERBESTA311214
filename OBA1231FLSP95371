@@ -1,0 +1,130 @@
+local a=game:GetService"Players"
+local b=game:GetService"Workspace"
+local c=game:GetService"RunService"
+
+wait(3)
+
+local d=a.LocalPlayer
+local e=b:WaitForChild"Enemies"
+local f=100
+local g=71
+local h
+local i=false
+
+
+game:GetService"ReplicatedStorage":WaitForChild"StartDungeon":FireServer()
+
+
+local function findNearestNPC()
+local j=math.huge
+local k
+local l=d.Character and d.Character.PrimaryPart.Position
+
+if not l then
+return
+end
+
+for m,n in pairs(e:GetChildren())do
+if n:IsA"Model"and n:FindFirstChild"HumanoidRootPart"and n.Humanoid.Health>0 then
+local o=(n.HumanoidRootPart.Position-l).magnitude
+if o<j then
+j=o
+k=n
+end
+end
+end
+
+return k
+end
+
+
+local function teleportAndLevitate()
+if i then
+return
+end
+
+local j=findNearestNPC()
+if j then
+local k=j.HumanoidRootPart.Position+Vector3.new(0,g,0)
+local l=k+Vector3.new(0,5,0)
+local m=k-Vector3.new(0,10,0)
+local n=CFrame.lookAt(l,m)
+d.Character:SetPrimaryPartCFrame(n)
+h=k
+end
+end
+
+
+local function autoTriggerSpells()
+local j={[1]="E"}
+local k={[1]="Q"}
+while wait(0.5)do
+game:GetService"ReplicatedStorage":WaitForChild"useSpell":FireServer(unpack(j))
+game:GetService"ReplicatedStorage":WaitForChild"useSpell":FireServer(unpack(k))
+end
+end
+
+
+b.ChildAdded:Connect(function(j)
+if j.Name=="Indicator"then
+
+if h then
+d.Character:SetPrimaryPartCFrame(CFrame.new(h+Vector3.new(0,f,0)))
+end
+end
+end)
+
+b.ChildRemoved:Connect(function(j)
+if j.Name=="Indicator"then
+
+if h then
+d.Character:SetPrimaryPartCFrame(CFrame.new(h))
+end
+end
+end)
+
+
+local function autoTeleportToGemZone()
+while true do
+local j=b:FindFirstChild"Gem"and b.Gem:FindFirstChild"Zone"
+local k=b.Enemies:FindFirstChild"Star Smasher"
+
+if j and k and k:IsA"Model"then
+local l=k:FindFirstChild"HumanoidRootPart"
+if l then
+i=true
+local m=j.Position
+d.Character:SetPrimaryPartCFrame(CFrame.new(m+Vector3.new(0,1,0)))
+d.Character.HumanoidRootPart.Anchored=true
+end
+else
+i=false
+if d.Character then
+d.Character.HumanoidRootPart.Anchored=false
+end
+end
+wait(1)
+end
+end
+
+
+c.Heartbeat:Connect(function()
+if not d.Character or not d.Character:FindFirstChild"Humanoid"or d.Character.Humanoid.Health<=0 then
+return
+end
+teleportAndLevitate()
+end)
+
+
+coroutine.wrap(autoTriggerSpells)()
+coroutine.wrap(autoTeleportToGemZone)()
+teleportAndLevitate()
+
+
+d.CharacterAdded:Connect(function(j)
+wait(1)
+d.Character=j
+h=nil
+coroutine.wrap(autoTeleportToGemZone)()
+teleportAndLevitate()
+end)
