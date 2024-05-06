@@ -94,7 +94,7 @@ local l=k:FindFirstChild"HumanoidRootPart"
 if l then
 i=true
 local m=j.Position
-d.Character:SetPrimaryPartCFrame(CFrame.new(m+Vector3.new(0,1,0)))
+d.Character:SetPrimaryPartCFrame(CFrame.new(m+Vector3.new(0,5,0)))
 d.Character.HumanoidRootPart.Anchored=true
 end
 else
